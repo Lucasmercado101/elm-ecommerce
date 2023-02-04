@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "dev": "elm-live src/Main.elm -- --debug"
+  },
+  "devDependencies": {
+    "elm-live": "^4.0.2"
+  }
+}
