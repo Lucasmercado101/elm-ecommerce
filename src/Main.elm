@@ -11,7 +11,6 @@ import Html.Attributes exposing (src, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Icons.Add exposing (add)
-import Icons.FavoriteOutline exposing (favoriteOutline)
 import List.Nonempty as NEList exposing (Nonempty(..))
 import Material.Icons.Outlined as Outlined
 import Material.Icons.Types exposing (Coloring(..))
