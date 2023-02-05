@@ -162,9 +162,11 @@ view model =
                             []
                     )
 
+            -- TODO: style
             Fetched Nothing ->
                 text "No products"
 
+            -- TODO:
             Failed error ->
                 text "Error"
         ]
