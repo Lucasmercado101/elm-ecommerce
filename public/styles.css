@@ -5,6 +5,8 @@
 
 :root {
   font-family: Inter;
+  background-color: #161819;
+  color: white;
 }
 /* normalize base css */
 *,
