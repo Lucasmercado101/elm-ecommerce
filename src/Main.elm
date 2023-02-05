@@ -3,6 +3,7 @@ module Main exposing (..)
 import Api exposing (baseUrl, createProduct, getAllProducts)
 import Browser
 import Cart exposing (Cart)
+import Color
 import File exposing (File)
 import File.Select as Select
 import Html exposing (Html, button, div, img, input, label, li, p, text, textarea, ul)
@@ -12,7 +13,8 @@ import Http
 import Icons.Add exposing (add)
 import Icons.FavoriteOutline exposing (favoriteOutline)
 import List.Nonempty as NEList exposing (Nonempty(..))
-import String exposing (toFloat)
+import Material.Icons.Outlined as Outlined
+import Material.Icons.Types exposing (Coloring(..))
 
 
 main =
@@ -249,7 +251,7 @@ productCard product =
                 , style "align-items" "center"
                 , style "padding" "8px"
                 ]
-                [ favoriteOutline 18 18 "#CD7373" ]
+                [ Outlined.favorite 18 (Color <| Color.rgb 205 115 115) ]
             ]
         , div [ style "display" "flex", style "flex-direction" "row", style "justify-content" "space-between" ]
             [ div [ style "display" "flex", style "flex-direction" "column" ]
