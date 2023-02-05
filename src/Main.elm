@@ -201,7 +201,7 @@ view model =
                     (products
                         |> NEList.foldl
                             (\product acc ->
-                                li [] [ productCard product, add 18 18 ] :: acc
+                                li [] [ productCard product, add 68 68 ] :: acc
                             )
                             []
                     )

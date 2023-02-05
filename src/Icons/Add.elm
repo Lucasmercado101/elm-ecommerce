@@ -8,8 +8,12 @@ import Svg.Attributes exposing (..)
 add : Float -> Float -> Html msg
 add w h =
     Svg.svg
-        [ width "96"
-        , height "96"
+        [ w
+            |> String.fromFloat
+            |> width
+        , h
+            |> String.fromFloat
+            |> height
         , viewBox "0 0 96 96"
         , fill "none"
         ]
@@ -23,7 +27,9 @@ add w h =
         , defs []
             [ Svg.clipPath [ id "clip0_1_162" ]
                 [ rect
-                    [ w |> String.fromFloat |> width
+                    [ w
+                        |> String.fromFloat
+                        |> width
                     , h
                         |> String.fromFloat
                         |> height
