@@ -1,7 +1,7 @@
 module Api exposing (..)
 
 import Http
-import Json.Decode as JD exposing (Decoder)
+import Json.Decode as JD exposing (Decoder, field)
 import Json.Encode as JE
 
 
@@ -15,7 +15,7 @@ baseUrl =
 
 
 type alias Product =
-    { id : String
+    { id : Int
     , name : String
     , price : Float
     }
@@ -49,11 +49,19 @@ createProductBodyEncoder data =
         ]
 
 
-createProductsResponseDecoder : Decoder (List Product)
-createProductsResponseDecoder =
+getAllProductsDecoder : Decoder (List Product)
+getAllProductsDecoder =
     JD.list
         (JD.map3 Product
-            (JD.field "id" JD.string)
-            (JD.field "name" JD.string)
-            (JD.field "price" JD.float)
+            (field "id" JD.int)
+            (field "name" JD.string)
+            (field "price" JD.float)
         )
+
+
+getAllProducts : (Result Http.Error (List Product) -> msg) -> Cmd msg
+getAllProducts msg =
+    Http.get
+        { url = baseUrl ++ "/getAllProducts"
+        , expect = Http.expectJson msg getAllProductsDecoder
+        }
