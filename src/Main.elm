@@ -3,10 +3,13 @@ module Main exposing (..)
 import Api exposing (createProduct, getAllProducts)
 import Browser
 import Cart exposing (Cart)
+import File exposing (File)
+import File.Select as Select
 import Html exposing (Html, button, div, input, label, li, text, textarea, ul)
 import Html.Attributes exposing (type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
+import Icons.Add exposing (add)
 import List.Nonempty as NEList exposing (Nonempty(..))
 import String exposing (toFloat)
 
@@ -56,6 +59,7 @@ mapFetched f apiCall =
 type alias Model =
     { name : String
     , price : String
+    , productImage : Maybe File
     , products : ApiCall Http.Error (Maybe (Nonempty Api.Product))
     , cart : Cart
     }
@@ -67,6 +71,7 @@ init _ =
       , price = ""
       , products = Fetching
       , cart = []
+      , productImage = Nothing
       }
     , getAllProducts FetchedProducts
     )
@@ -83,6 +88,8 @@ type Msg
     | FetchProducts
     | FetchedProducts (Result Http.Error (List Api.Product))
     | AddToCart Int
+    | ProductImageUploadRequested
+    | ProductImageSelected File
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -102,6 +109,7 @@ update msg model =
                         , createProduct
                             { name = model.name
                             , price = price
+                            , productImage = model.productImage
                             }
                             (\l -> FetchProducts)
                         )
@@ -137,6 +145,12 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        ProductImageUploadRequested ->
+            ( model, Select.file [ "img/*" ] ProductImageSelected )
+
+        ProductImageSelected file ->
+            ( { model | productImage = Just file }, Cmd.none )
 
         -- API
         FetchProducts ->
@@ -187,7 +201,7 @@ view model =
                     (products
                         |> NEList.foldl
                             (\product acc ->
-                                li [] [ productCard product ] :: acc
+                                li [] [ productCard product, add 18 18 ] :: acc
                             )
                             []
                     )
@@ -201,6 +215,7 @@ view model =
                 text "Error"
         , text "Cart:"
         , ul [] (List.map (\l -> div [] [ text l.name, text ("Amount" ++ String.fromInt l.quantity) ]) model.cart)
+        , button [ onClick ProductImageUploadRequested ] [ text "Upload image" ]
         ]
 
 

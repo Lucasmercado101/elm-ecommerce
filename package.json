@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "elm-live src/Main.elm -- --debug"
+    "dev": "elm-live src/Main.elm -- --debug --output=public/elm.js"
   },
   "devDependencies": {
     "elm-live": "^4.0.2"

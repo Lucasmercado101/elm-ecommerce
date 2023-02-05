@@ -1,5 +1,6 @@
 module Api exposing (..)
 
+import File exposing (File)
 import Http
 import Json.Decode as JD exposing (Decoder, field)
 import Json.Encode as JE
@@ -24,6 +25,7 @@ type alias Product =
 type alias CreateProductBody =
     { name : String
     , price : Float
+    , productImage : Maybe File
     }
 
 
@@ -35,18 +37,24 @@ ignoreHttpResp msg =
 createProduct : CreateProductBody -> (Result Http.Error () -> msg) -> Cmd msg
 createProduct body msg =
     Http.post
-        { url = baseUrl ++ "/initial"
-        , body = body |> createProductBodyEncoder |> Http.jsonBody
+        { url = baseUrl ++ "/createProduct"
+        , body = body |> createProductBodyEncoder |> Http.multipartBody
         , expect = Http.expectWhatever msg
         }
 
 
-createProductBodyEncoder : CreateProductBody -> JE.Value
+createProductBodyEncoder : CreateProductBody -> List Http.Part
 createProductBodyEncoder data =
-    JE.object
-        [ ( "name", JE.string data.name )
-        , ( "price", JE.float data.price )
-        ]
+    [ Http.stringPart "name" data.name
+    , Http.stringPart "price" (String.fromFloat data.price)
+    ]
+        ++ (case data.productImage of
+                Just file ->
+                    [ Http.filePart "productImage" file ]
+
+                Nothing ->
+                    []
+           )
 
 
 getAllProductsDecoder : Decoder (List Product)
