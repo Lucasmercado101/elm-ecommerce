@@ -1,11 +1,21 @@
 module Main exposing (..)
 
+import Api exposing (createProduct)
 import Browser
-import Html exposing (Html, div, text)
+import Html exposing (Html, button, div, input, label, text, textarea)
+import Html.Attributes exposing (type_, value)
+import Html.Events exposing (onClick, onInput)
+import Http
+import String exposing (toFloat)
 
 
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        }
 
 
 
@@ -13,12 +23,12 @@ main =
 
 
 type alias Model =
-    { count : Int }
+    { name : String, price : String }
 
 
-init : Model
-init =
-    { count = 0 }
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( { name = "", price = "" }, Cmd.none )
 
 
 
@@ -26,14 +36,41 @@ init =
 
 
 type Msg
-    = Increment
+    = ChangeName String
+    | ChangePrice String
+    | CreateProduct
+    | NoOp (Result Http.Error ())
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Increment ->
-            { model | count = model.count + 1 }
+        NoOp _ ->
+            ( model, Cmd.none )
+
+        ChangeName name ->
+            ( { model | name = name }, Cmd.none )
+
+        ChangePrice price ->
+            ( { model | price = price }, Cmd.none )
+
+        CreateProduct ->
+            if model.name /= "" && model.price /= "" then
+                case String.toFloat model.price of
+                    Just price ->
+                        ( model
+                        , createProduct
+                            { name = model.name
+                            , price = price
+                            }
+                            NoOp
+                        )
+
+                    Nothing ->
+                        ( model, Cmd.none )
+
+            else
+                ( model, Cmd.none )
 
 
 
@@ -43,4 +80,31 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ text "a" ]
+        [ label []
+            [ text "Name:"
+            , input
+                [ onInput ChangeName
+                ]
+                []
+            ]
+        , label []
+            [ text "Price:"
+            , input
+                [ type_ "number"
+                , onInput ChangePrice
+                ]
+                []
+            ]
+        , button [ onClick CreateProduct ] [ text "Add" ]
+        , text model.name
+        , text model.price
+        ]
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
