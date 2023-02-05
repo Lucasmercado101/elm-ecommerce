@@ -5,8 +5,8 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 
 
-add : Float -> Float -> Html msg
-add w h =
+add : Float -> Float -> String -> Html msg
+add w h color =
     Svg.svg
         [ w
             |> String.fromFloat
@@ -20,7 +20,7 @@ add w h =
         [ g []
             [ Svg.path
                 [ d "M76 52H52V76H44V52H20V44H44V20H52V44H76V52Z"
-                , fill "black"
+                , fill color
                 ]
                 []
             ]

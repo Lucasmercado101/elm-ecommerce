@@ -10,6 +10,7 @@ import Html.Attributes exposing (src, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Icons.Add exposing (add)
+import Icons.FavoriteOutline exposing (favoriteOutline)
 import List.Nonempty as NEList exposing (Nonempty(..))
 import String exposing (toFloat)
 
@@ -202,7 +203,7 @@ view model =
                     , style "list-style" "none"
                     , style "display" "grid"
                     , style "gap" "32px"
-                    , style "grid-template-columns" "repeat(auto-fit, minmax(133px, 1fr))"
+                    , style "grid-template-columns" "repeat(auto-fit, minmax(200px, 1fr))"
                     ]
                     (products
                         |> NEList.foldl
@@ -228,16 +229,40 @@ view model =
 productCard : Api.Product -> Html Msg
 productCard product =
     div []
-        [ img
-            [ src (baseUrl ++ "/images/" ++ String.fromInt product.id)
-            , style "width" "100%"
-            , style "height" "215px"
-            , style "object-fit" "cover"
+        [ div [ style "position" "relative" ]
+            [ img
+                [ src (baseUrl ++ "/images/" ++ String.fromInt product.id)
+                , style "width" "100%"
+                , style "height" "215px"
+                , style "object-fit" "cover"
+                , style "margin-bottom" "8px"
+                ]
+                []
+            , div
+                [ style "position" "absolute"
+                , style "background-color" "rgba(0, 0, 0, 0.5)"
+                , style "top" "8px"
+                , style "right" "8px"
+                , style "border-radius" "50%"
+                , style "display" "flex"
+                , style "justify-content" "center"
+                , style "align-items" "center"
+                , style "padding" "8px"
+                ]
+                [ favoriteOutline 18 18 "#CD7373" ]
             ]
-            []
-        , p [ style "font-size" "16px", style "font-weight" "300" ] [ text product.name ]
-        , p [ style "font-size" "14px", style "font-weight" "bold" ] [ text ("$" ++ String.fromFloat product.price) ]
-        , button [ onClick (AddToCart product.id) ] [ text "Add to cart" ]
+        , div [ style "display" "flex", style "flex-direction" "row", style "justify-content" "space-between" ]
+            [ div [ style "display" "flex", style "flex-direction" "column" ]
+                [ p [ style "font-size" "18px", style "font-weight" "300" ] [ text product.name ]
+                , p [ style "font-size" "16px", style "font-weight" "bold" ] [ text ("$" ++ String.fromFloat product.price) ]
+                ]
+            , button
+                [ style "background-color" "transparent"
+                , style "border" "none"
+                , style "outline" "none"
+                ]
+                [ add 32 32 "white" ]
+            ]
         ]
 
 
