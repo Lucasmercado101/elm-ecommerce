@@ -200,8 +200,9 @@ view model =
                 ul
                     [ style "padding" "32px"
                     , style "list-style" "none"
-                    , style "display" "flex"
-                    , style "gap" "45px"
+                    , style "display" "grid"
+                    , style "gap" "32px"
+                    , style "grid-template-columns" "repeat(auto-fit, minmax(133px, 1fr))"
                     ]
                     (products
                         |> NEList.foldl
@@ -229,13 +230,13 @@ productCard product =
     div []
         [ img
             [ src (baseUrl ++ "/images/" ++ String.fromInt product.id)
-            , style "width" "133px"
-            , style "height" "174px"
+            , style "width" "100%"
+            , style "height" "215px"
             , style "object-fit" "cover"
             ]
             []
-        , p [ style "font-size" "12px" ] [ text product.name ]
-        , p [ style "font-size" "10px", style "font-weight" "bold" ] [ text (String.fromFloat product.price) ]
+        , p [ style "font-size" "16px", style "font-weight" "300" ] [ text product.name ]
+        , p [ style "font-size" "14px", style "font-weight" "bold" ] [ text ("$" ++ String.fromFloat product.price) ]
         , button [ onClick (AddToCart product.id) ] [ text "Add to cart" ]
         ]
 
