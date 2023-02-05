@@ -321,6 +321,7 @@ productCard favorite product =
                 [ style "background-color" "transparent"
                 , style "border" "none"
                 , style "outline" "none"
+                , onClick (AddToCart product.id)
                 ]
                 [ Filled.add 32 (Color <| Color.white) ]
             ]
