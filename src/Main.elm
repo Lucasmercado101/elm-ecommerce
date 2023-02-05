@@ -11,7 +11,9 @@ import Html.Attributes exposing (src, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Icons.Add exposing (add)
+import List.Extra
 import List.Nonempty as NEList exposing (Nonempty(..))
+import Material.Icons as Filled
 import Material.Icons.Outlined as Outlined
 import Material.Icons.Types exposing (Coloring(..))
 
@@ -64,6 +66,7 @@ type alias Model =
     , productImage : Maybe File
     , products : ApiCall Http.Error (Maybe (Nonempty Api.Product))
     , cart : Cart
+    , favorites : List Api.Product
     }
 
 
@@ -74,6 +77,7 @@ init _ =
       , products = Fetching
       , cart = []
       , productImage = Nothing
+      , favorites = []
       }
     , getAllProducts FetchedProducts
     )
@@ -92,6 +96,7 @@ type Msg
     | AddToCart Int
     | ProductImageUploadRequested
     | ProductImageSelected File
+    | ToggleAddToFavorites Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -154,6 +159,43 @@ update msg model =
         ProductImageSelected file ->
             ( { model | productImage = Just file }, Cmd.none )
 
+        ToggleAddToFavorites id ->
+            case model.products of
+                Fetched (Just products) ->
+                    case
+                        NEList.foldl
+                            (\product acc ->
+                                if product.id == id then
+                                    Just product
+
+                                else
+                                    acc
+                            )
+                            Nothing
+                            products
+                    of
+                        Just product ->
+                            case List.Extra.find (\p -> p.id == id) model.favorites of
+                                Just _ ->
+                                    ( { model
+                                        | favorites =
+                                            model.favorites
+                                                |> List.filter (\p -> p.id /= id)
+                                      }
+                                    , Cmd.none
+                                    )
+
+                                Nothing ->
+                                    ( { model | favorites = product :: model.favorites }
+                                    , Cmd.none
+                                    )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
         -- API
         FetchProducts ->
             ( model, getAllProducts FetchedProducts )
@@ -209,7 +251,15 @@ view model =
                     (products
                         |> NEList.foldl
                             (\product acc ->
-                                li [] [ productCard product ] :: acc
+                                li []
+                                    [ productCard
+                                        (model.favorites
+                                            |> List.Extra.find (\l -> l.id == product.id)
+                                            |> maybeToBoolean
+                                        )
+                                        product
+                                    ]
+                                    :: acc
                             )
                             []
                     )
@@ -227,8 +277,8 @@ view model =
         ]
 
 
-productCard : Api.Product -> Html Msg
-productCard product =
+productCard : Bool -> Api.Product -> Html Msg
+productCard favorite product =
     div []
         [ div [ style "position" "relative" ]
             [ img
@@ -239,7 +289,7 @@ productCard product =
                 , style "margin-bottom" "8px"
                 ]
                 []
-            , div
+            , button
                 [ style "position" "absolute"
                 , style "background-color" "rgba(0, 0, 0, 0.5)"
                 , style "top" "8px"
@@ -249,8 +299,19 @@ productCard product =
                 , style "justify-content" "center"
                 , style "align-items" "center"
                 , style "padding" "8px"
+                , style "outline" "none"
+                , style "border" "transparent"
+                , onClick (ToggleAddToFavorites product.id)
                 ]
-                [ Outlined.favorite 18 (Color <| Color.rgb 205 115 115) ]
+                [ (if favorite then
+                    Filled.favorite
+
+                   else
+                    Outlined.favorite_border
+                  )
+                    18
+                    (Color <| Color.rgb255 205 115 115)
+                ]
             ]
         , div [ style "display" "flex", style "flex-direction" "row", style "justify-content" "space-between" ]
             [ div [ style "display" "flex", style "flex-direction" "column" ]
@@ -274,3 +335,17 @@ productCard product =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+
+-- HELPERS
+
+
+maybeToBoolean : Maybe a -> Bool
+maybeToBoolean maybe =
+    case maybe of
+        Just _ ->
+            True
+
+        Nothing ->
+            False
