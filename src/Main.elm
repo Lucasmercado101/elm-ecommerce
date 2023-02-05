@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Api exposing (createProduct, getAllProducts)
 import Browser
-import Html exposing (Html, button, div, input, label, text, textarea)
+import Html exposing (Html, button, div, input, label, li, text, textarea, ul)
 import Html.Attributes exposing (type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
@@ -77,7 +77,6 @@ type Msg
     = ChangeName String
     | ChangePrice String
     | CreateProduct
-    | NoOp (Result Http.Error ())
     | FetchProducts
     | FetchedProducts (Result Http.Error (List Api.Product))
 
@@ -85,9 +84,6 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp _ ->
-            ( model, Cmd.none )
-
         ChangeName name ->
             ( { model | name = name }, Cmd.none )
 
@@ -103,7 +99,7 @@ update msg model =
                             { name = model.name
                             , price = price
                             }
-                            NoOp
+                            (\l -> FetchProducts)
                         )
 
                     Nothing ->
@@ -152,6 +148,33 @@ view model =
         , button [ onClick CreateProduct ] [ text "Add" ]
         , text model.name
         , text model.price
+        , case model.products of
+            Fetching ->
+                text "Fetching..."
+
+            Fetched (Just products) ->
+                ul []
+                    (products
+                        |> NEList.foldl
+                            (\product acc ->
+                                li [] [ productCard product ] :: acc
+                            )
+                            []
+                    )
+
+            Fetched Nothing ->
+                text "No products"
+
+            Failed error ->
+                text "Error"
+        ]
+
+
+productCard : Api.Product -> Html Msg
+productCard product =
+    div []
+        [ text product.name
+        , text (String.fromFloat product.price)
         ]
 
 

@@ -11024,9 +11024,7 @@ var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$none;
 };
-var $author$project$Main$NoOp = function (a) {
-	return {$: 'NoOp', a: a};
-};
+var $author$project$Main$FetchProducts = {$: 'FetchProducts'};
 var $elm$json$Json$Encode$float = _Json_wrap;
 var $author$project$Api$createProductBodyEncoder = function (data) {
 	return $elm$json$Json$Encode$object(
@@ -11124,8 +11122,6 @@ var $elm$core$String$toFloat = _String_toFloat;
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'NoOp':
-				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'ChangeName':
 				var name = msg.a;
 				return _Utils_Tuple2(
@@ -11150,7 +11146,9 @@ var $author$project$Main$update = F2(
 							A2(
 								$author$project$Api$createProduct,
 								{name: model.name, price: price},
-								$author$project$Main$NoOp));
+								function (l) {
+									return $author$project$Main$FetchProducts;
+								}));
 					} else {
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 					}
@@ -11182,7 +11180,28 @@ var $author$project$Main$ChangePrice = function (a) {
 	return {$: 'ChangePrice', a: a};
 };
 var $author$project$Main$CreateProduct = {$: 'CreateProduct'};
+var $mgold$elm_nonempty_list$List$Nonempty$foldl = F3(
+	function (f, b, _v0) {
+		var x = _v0.a;
+		var xs = _v0.b;
+		return A3(
+			$elm$core$List$foldl,
+			f,
+			b,
+			A2($elm$core$List$cons, x, xs));
+	});
 var $elm$html$Html$label = _VirtualDom_node('label');
+var $author$project$Main$productCard = function (product) {
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$text(product.name),
+				$elm$html$Html$text(
+				$elm$core$String$fromFloat(product.price))
+			]));
+};
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -11229,13 +11248,50 @@ var $author$project$Main$view = function (model) {
 						$elm$html$Html$text('Add')
 					])),
 				$elm$html$Html$text(model.name),
-				$elm$html$Html$text(model.price)
+				$elm$html$Html$text(model.price),
+				function () {
+				var _v0 = model.products;
+				switch (_v0.$) {
+					case 'Fetching':
+						return $elm$html$Html$text('Fetching...');
+					case 'Fetched':
+						if (_v0.a.$ === 'Just') {
+							var products = _v0.a.a;
+							return A2(
+								$elm$html$Html$ul,
+								_List_Nil,
+								A3(
+									$mgold$elm_nonempty_list$List$Nonempty$foldl,
+									F2(
+										function (product, acc) {
+											return A2(
+												$elm$core$List$cons,
+												A2(
+													$elm$html$Html$li,
+													_List_Nil,
+													_List_fromArray(
+														[
+															$author$project$Main$productCard(product)
+														])),
+												acc);
+										}),
+									_List_Nil,
+									products));
+						} else {
+							var _v1 = _v0.a;
+							return $elm$html$Html$text('No products');
+						}
+					default:
+						var error = _v0.a;
+						return $elm$html$Html$text('Error');
+				}
+			}()
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Api.Product":{"args":[],"type":"{ id : Basics.Int, name : String.String, price : Basics.Float }"}},"unions":{"Main.Msg":{"args":[],"tags":{"ChangeName":["String.String"],"ChangePrice":["String.String"],"CreateProduct":[],"NoOp":["Result.Result Http.Error ()"],"FetchProducts":[],"FetchedProducts":["Result.Result Http.Error (List.List Api.Product)"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Api.Product":{"args":[],"type":"{ id : Basics.Int, name : String.String, price : Basics.Float }"}},"unions":{"Main.Msg":{"args":[],"tags":{"ChangeName":["String.String"],"ChangePrice":["String.String"],"CreateProduct":[],"FetchProducts":[],"FetchedProducts":["Result.Result Http.Error (List.List Api.Product)"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});}(this));
 
   var app = Elm.Main.init({ node: document.getElementById("elm") });
 }
