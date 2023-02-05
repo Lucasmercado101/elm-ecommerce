@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Api exposing (createProduct, getAllProducts)
 import Browser
+import Cart exposing (Cart)
 import Html exposing (Html, button, div, input, label, li, text, textarea, ul)
 import Html.Attributes exposing (type_, value)
 import Html.Events exposing (onClick, onInput)
@@ -56,6 +57,7 @@ type alias Model =
     { name : String
     , price : String
     , products : ApiCall Http.Error (Maybe (Nonempty Api.Product))
+    , cart : Cart
     }
 
 
@@ -64,6 +66,7 @@ init _ =
     ( { name = ""
       , price = ""
       , products = Fetching
+      , cart = []
       }
     , getAllProducts FetchedProducts
     )
@@ -79,6 +82,7 @@ type Msg
     | CreateProduct
     | FetchProducts
     | FetchedProducts (Result Http.Error (List Api.Product))
+    | AddToCart Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -107,6 +111,32 @@ update msg model =
 
             else
                 ( model, Cmd.none )
+
+        AddToCart id ->
+            case model.products of
+                Fetched (Just products) ->
+                    case
+                        NEList.foldl
+                            (\product acc ->
+                                if product.id == id then
+                                    Just product
+
+                                else
+                                    acc
+                            )
+                            Nothing
+                            products
+                    of
+                        Just product ->
+                            ( { model | cart = model.cart |> Cart.addToCart product }
+                            , Cmd.none
+                            )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         -- API
         FetchProducts ->
@@ -169,6 +199,8 @@ view model =
             -- TODO:
             Failed error ->
                 text "Error"
+        , text "Cart:"
+        , ul [] (List.map (\l -> div [] [ text l.name, text ("Amount" ++ String.fromInt l.quantity) ]) model.cart)
         ]
 
 
@@ -177,6 +209,7 @@ productCard product =
     div []
         [ text product.name
         , text (String.fromFloat product.price)
+        , button [ onClick (AddToCart product.id) ] [ text "Add to cart" ]
         ]
 
 
