@@ -1,12 +1,12 @@
 module Main exposing (..)
 
-import Api exposing (createProduct, getAllProducts)
+import Api exposing (baseUrl, createProduct, getAllProducts)
 import Browser
 import Cart exposing (Cart)
 import File exposing (File)
 import File.Select as Select
-import Html exposing (Html, button, div, input, label, li, text, textarea, ul)
-import Html.Attributes exposing (type_, value)
+import Html exposing (Html, button, div, img, input, label, li, p, text, textarea, ul)
+import Html.Attributes exposing (src, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Icons.Add exposing (add)
@@ -197,11 +197,16 @@ view model =
                 text "Fetching..."
 
             Fetched (Just products) ->
-                ul []
+                ul
+                    [ style "padding" "32px"
+                    , style "list-style" "none"
+                    , style "display" "flex"
+                    , style "gap" "45px"
+                    ]
                     (products
                         |> NEList.foldl
                             (\product acc ->
-                                li [] [ productCard product, add 68 68 ] :: acc
+                                li [] [ productCard product ] :: acc
                             )
                             []
                     )
@@ -222,8 +227,15 @@ view model =
 productCard : Api.Product -> Html Msg
 productCard product =
     div []
-        [ text product.name
-        , text (String.fromFloat product.price)
+        [ img
+            [ src (baseUrl ++ "/images/" ++ String.fromInt product.id)
+            , style "width" "133px"
+            , style "height" "174px"
+            , style "object-fit" "cover"
+            ]
+            []
+        , p [ style "font-size" "12px" ] [ text product.name ]
+        , p [ style "font-size" "10px", style "font-weight" "bold" ] [ text (String.fromFloat product.price) ]
         , button [ onClick (AddToCart product.id) ] [ text "Add to cart" ]
         ]
 
