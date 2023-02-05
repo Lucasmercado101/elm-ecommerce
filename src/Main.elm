@@ -10,7 +10,6 @@ import Html exposing (Html, button, div, img, input, label, li, p, text, textare
 import Html.Attributes exposing (src, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
-import Icons.Add exposing (add)
 import List.Extra
 import List.Nonempty as NEList exposing (Nonempty(..))
 import Material.Icons as Filled
@@ -323,7 +322,7 @@ productCard favorite product =
                 , style "border" "none"
                 , style "outline" "none"
                 ]
-                [ add 32 32 "white" ]
+                [ Filled.add 32 (Color <| Color.white) ]
             ]
         ]
 
